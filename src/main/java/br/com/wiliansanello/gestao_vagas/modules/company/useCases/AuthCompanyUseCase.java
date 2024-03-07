@@ -1,5 +1,8 @@
 package br.com.wiliansanello.gestao_vagas.modules.company.useCases;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import javax.naming.AuthenticationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +30,10 @@ public class AuthCompanyUseCase {
     private PasswordEncoder passwordEncoder;
 
     public String execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
-        var company = this.companyRepository.findByUsername(authCompanyDTO.getUsername()).orElseThrow(
-            ()-> {
-                throw new UsernameNotFoundException("Username/password not found");
-            }
-        );
-
+        var company = this.companyRepository.findByUsername(authCompanyDTO.getUsername()).orElseThrow(()-> {
+            throw new UsernameNotFoundException("Username/password not found");
+        });
+        
         var passwordMatches = this.passwordEncoder.matches(authCompanyDTO.getPassword(), company.getPassword());
 
         if(!passwordMatches) {
@@ -40,11 +41,11 @@ public class AuthCompanyUseCase {
         }
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
+
         var token = JWT.create().withIssuer("tabajara")
-        .withSubject(company.getId().toString())
-        .sign(algorithm);
+        .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
+            .withSubject(company.getId().toString()).sign(algorithm);
 
         return token;
-    }
-    
+    }    
 }
