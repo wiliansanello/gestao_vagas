@@ -2,6 +2,8 @@ package br.com.wiliansanello.gestao_vagas.modules.company.controllers;
 
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import br.com.wiliansanello.gestao_vagas.exceptions.CompanyNotFoundException;
 import br.com.wiliansanello.gestao_vagas.modules.company.dto.CreateJobDTO;
 import br.com.wiliansanello.gestao_vagas.modules.company.entities.CompanyEntity;
 import br.com.wiliansanello.gestao_vagas.modules.company.repositories.CompanyRepository;
@@ -75,5 +76,25 @@ public class CreateJobControllerTest {
 
         System.out.println(result);
     }    
+
+    @Test
+    public void shouldNotBeAbleToCreateANewJobIfCompanyNotFound() throws Exception {
+
+        var createdJobDTO = CreateJobDTO.builder()
+            .benefits("BENEFITS_TEST")
+            .description("DESCRIPTION_TEST")
+            .level("LEVEL_TEST")
+            .build();
+
+        
+        mvc.perform(MockMvcRequestBuilders.post("/company/job/")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtils.objectToJSON(createdJobDTO))
+            .header("Authorization",
+                TestUtils.generateToken(UUID.randomUUID(),
+                        "JAVAGAS_@123#")))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+            
+    }
     
 }
