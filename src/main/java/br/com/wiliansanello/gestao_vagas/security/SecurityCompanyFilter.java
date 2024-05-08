@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 @EnableMethodSecurity
-public class SecurityFilter extends OncePerRequestFilter{
+public class SecurityCompanyFilter extends OncePerRequestFilter{
 
     @Autowired
     private JWTProvider jwtProvider;
